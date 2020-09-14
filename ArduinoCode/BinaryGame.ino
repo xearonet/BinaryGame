@@ -1,35 +1,41 @@
 // include the library code:
-#include <LiquidCrystal.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 
 // initialize the library with the numbers of the interface pins
-LiquidCrystal lcd(7, 8, 9, 10, 11, 12);
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-const int Pin0 = 6;  // Binary number 2^0 or 1
-const int Pin1 = 5;  // Binary number 2^1 or 2
-const int Pin2 = 4;  // Binary number 2^2 or 4
-const int Pin3 = 3;  // Binary number 2^3 or 8
-const int Pin4 = A4; // Binary number 2^4 or 16
-const int Pin5 = A3; // Binary number 2^5 or 32
-const int Pin6 = A2; // Binary number 2^6 or 64
-const int Pin7 = A1; // Binary number 2^7 or 128
-const int easyMode = A0; // Easy mode is 0-15, Hard is 0-255
+const int Pin0 = 7;      // Binary number 2^0 or 1
+const int Pin1 = 8;      // Binary number 2^1 or 2
+const int Pin2 = 9;      // Binary number 2^2 or 4
+const int Pin3 = 10;     // Binary number 2^3 or 8
+const int Pin4 = 11;     // Binary number 2^4 or 16
+const int Pin5 = 12;     // Binary number 2^5 or 32
+const int Pin6 = A0;     // Binary number 2^6 or 64
+const int Pin7 = A1;     // Binary number 2^7 or 128
+const int easyMode = A2; // Easy mode is 0-15, Hard is 0-255
 
 int BinaryValue; // Value for adding up numbers to compare to random number
 
 int correctNumber = 0; // Flag to see if the number was correct
-int wrongNumber = 0; // Flag to see if the number was wrong
+int wrongNumber = 0;   // Flag to see if the number was wrong
 
-const int buzzer = 13; //Buzzer pin
-int freq; //frequency out
+const int buzzer = 3; //Buzzer pin
+int freq;             //frequency out
 
-const int buttonPin = 2;     // the number of the pushbutton pin
+const int buttonPin = 2;      // the number of the pushbutton pin
+const int buttonLedRed = 4;   // the number of the pushbutton LED pin
+const int buttonLedGreen = 5; // the number of the pushbutton LED pin
+const int buttonLedBlue = 6;  // the number of the pushbutton LED pin
 
-int buttonState;         // variable for reading the pushbutton status
-long randNumber;         // variable for the random number
+int buttonState; // variable for reading the pushbutton status
+long randNumber; // variable for the random number
 
-void setup() {
+void setup()
+{
 
-  lcd.begin(16, 2); // set up the LCD's number of columns and rows
+  lcd.init(); // set up the LCD's number of columns and rows
+  lcd.backlight();
 
   pinMode(Pin0, INPUT_PULLUP);
   pinMode(Pin1, INPUT_PULLUP);
@@ -43,16 +49,17 @@ void setup() {
   pinMode(easyMode, INPUT_PULLUP);
 
   pinMode(buttonPin, INPUT_PULLUP);
+  pinMode(buttonLedRed, OUTPUT);
+  pinMode(buttonLedGreen, OUTPUT);
+  pinMode(buttonLedBlue, OUTPUT);
 
   pinMode(buzzer, OUTPUT); // Set buzzer pin as OUTPUT
 
-
-
-  // if analog input pin 5 is unconnected, random analog
+  // if analog input pin 3 is unconnected, random analog
   // noise will cause the call to randomSeed() to generate
   // different seed numbers each time the sketch runs.
   // randomSeed() will then shuffle the random function.
-  randomSeed(analogRead(5));
+  randomSeed(analogRead(A3));
 
   if (digitalRead(easyMode) == HIGH)
   {
@@ -71,12 +78,12 @@ void setup() {
   lcd.setCursor(0, 1);
 
   lcd.print(randNumber); // Print the random number
-
+  digitalWrite(buttonLedBlue, HIGH);
 }
 
 void checkNumber() // Check switches for correct number
 {
-  if (digitalRead(Pin0) == HIGH)
+  if (digitalRead(Pin0) == LOW)
   {
     BinaryValue = 1;
   }
@@ -85,37 +92,37 @@ void checkNumber() // Check switches for correct number
     BinaryValue = 0;
   }
 
-  if (digitalRead(Pin1) == HIGH)
+  if (digitalRead(Pin1) == LOW)
   {
     BinaryValue = BinaryValue + 2;
   }
 
-  if (digitalRead(Pin2) == HIGH)
+  if (digitalRead(Pin2) == LOW)
   {
     BinaryValue = BinaryValue + 4;
   }
 
-  if (digitalRead(Pin3) == HIGH)
+  if (digitalRead(Pin3) == LOW)
   {
     BinaryValue = BinaryValue + 8;
   }
 
-  if (digitalRead(Pin4) == HIGH)
+  if (digitalRead(Pin4) == LOW)
   {
     BinaryValue = BinaryValue + 16;
   }
 
-  if (digitalRead(Pin5) == HIGH)
+  if (digitalRead(Pin5) == LOW)
   {
     BinaryValue = BinaryValue + 32;
   }
 
-  if (digitalRead(Pin6) == HIGH)
+  if (digitalRead(Pin6) == LOW)
   {
     BinaryValue = BinaryValue + 64;
   }
 
-  if (digitalRead(Pin7) == HIGH)
+  if (digitalRead(Pin7) == LOW)
   {
     BinaryValue = BinaryValue + 128;
   }
@@ -128,12 +135,11 @@ void checkNumber() // Check switches for correct number
   {
     wrongNumber = 1;
   }
-
 }
 
 void printBinary() // Displays status of switches
 {
-  if (digitalRead(Pin7) == LOW)
+  if (digitalRead(Pin7) == HIGH)
   {
     lcd.print("0");
   }
@@ -142,7 +148,7 @@ void printBinary() // Displays status of switches
     lcd.print("1");
   }
 
-  if (digitalRead(Pin6) == LOW)
+  if (digitalRead(Pin6) == HIGH)
   {
     lcd.print("0");
   }
@@ -150,7 +156,7 @@ void printBinary() // Displays status of switches
   {
     lcd.print("1");
   }
-  if (digitalRead(Pin5) == LOW)
+  if (digitalRead(Pin5) == HIGH)
   {
     lcd.print("0");
   }
@@ -158,7 +164,7 @@ void printBinary() // Displays status of switches
   {
     lcd.print("1");
   }
-  if (digitalRead(Pin4) == LOW)
+  if (digitalRead(Pin4) == HIGH)
   {
     lcd.print("0");
   }
@@ -167,7 +173,7 @@ void printBinary() // Displays status of switches
     lcd.print("1");
   }
   lcd.print(" ");
-  if (digitalRead(Pin3) == LOW)
+  if (digitalRead(Pin3) == HIGH)
   {
     lcd.print("0");
   }
@@ -175,7 +181,7 @@ void printBinary() // Displays status of switches
   {
     lcd.print("1");
   }
-  if (digitalRead(Pin2) == LOW)
+  if (digitalRead(Pin2) == HIGH)
   {
     lcd.print("0");
   }
@@ -183,7 +189,7 @@ void printBinary() // Displays status of switches
   {
     lcd.print("1");
   }
-  if (digitalRead(Pin1) == LOW)
+  if (digitalRead(Pin1) == HIGH)
   {
     lcd.print("0");
   }
@@ -191,7 +197,7 @@ void printBinary() // Displays status of switches
   {
     lcd.print("1");
   }
-  if (digitalRead(Pin0) == LOW)
+  if (digitalRead(Pin0) == HIGH)
   {
     lcd.print("0");
   }
@@ -201,7 +207,8 @@ void printBinary() // Displays status of switches
   }
 }
 
-void loop() {
+void loop()
+{
 
   attachInterrupt(digitalPinToInterrupt(buttonPin), checkNumber, FALLING); // Wait for pushbutton to be pressed, when pressed check to see if correct number is inputted
 
@@ -211,7 +218,8 @@ void loop() {
 
   if (wrongNumber == 1)
   {
-
+    digitalWrite(buttonLedBlue, LOW);
+    digitalWrite(buttonLedRed, HIGH);
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Try again");
@@ -219,20 +227,24 @@ void loop() {
     lcd.print(randNumber);
     tone(buzzer, 200); // Play wrong answer tone
     delay(400);
-    noTone(buzzer);     // Stop sound...
+    noTone(buzzer); // Stop sound...
     wrongNumber = 0;
     correctNumber = 0;
+    digitalWrite(buttonLedRed, LOW);
+    digitalWrite(buttonLedBlue, HIGH);
   }
 
   if (correctNumber == 1)
   {
+    digitalWrite(buttonLedBlue, LOW);
+    digitalWrite(buttonLedGreen, HIGH);
     tone(buzzer, 600); // Play correct answer tone
     delay(100);
     tone(buzzer, 1000);
     delay(100);
     tone(buzzer, 800);
     delay(100);
-    noTone(buzzer);     // Stop sound...
+    noTone(buzzer); // Stop sound...
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Correct!");
@@ -242,7 +254,7 @@ void loop() {
 
     printBinary(); // Display status of switches
 
-    delay(3000);
+    delay(2000);
 
     lcd.clear();
     lcd.setCursor(0, 0);
@@ -261,13 +273,11 @@ void loop() {
       randNumber = random(0, 255);
     }
 
-
     lcd.print(randNumber);
 
     correctNumber = 0;
     wrongNumber = 0;
+    digitalWrite(buttonLedGreen, LOW);
+    digitalWrite(buttonLedBlue, HIGH);
   }
-
 }
-
-
